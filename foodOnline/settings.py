@@ -39,7 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
 ]
+
+# On use cette classe pour la gestion des users et des superadmins
+AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_EMAIL_UNIQUE = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -135,7 +140,17 @@ STATICFILES_DIRS = [
     'foodOnline/static'
 ]
 
+# Configuration du chemin de dossier pour les medias
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Pour les messages flash
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: "",
+}
