@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'vendor',
 ]
 
 # On use cette classe pour la gestion des users et des superadmins

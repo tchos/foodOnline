@@ -1,11 +1,35 @@
 from django.shortcuts import render, redirect
 from .forms import UserForm
 from .models import User
-from django.contrib import messages
+from django.contrib import messages, auth
+from .utils import detectUser
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
+
+# Interdiction aux vendors d'accéder aux pages des customers
+def check_role_vendor(user):
+    if user.role == 1:
+        return True
+    else:
+        raise PermissionDenied
+
+# Interdiction aux customers d'accéder aux pages des vendors
+def check_role_custpmer(user):
+    if user.role == 2:
+        return True
+    else:
+        raise PermissionDenied
+
 def registerUser(request):
-    if request.method == "POST":
+    # Si le user ouvre une autre fenetre pour s'enregistrer alors qu'il est déja connecté, on le redirife vers le dashboard
+    if request.user.is_authenticated:
+        messages.warning(request, "You are already logged in !")
+        return redirect("accounts:myAccount")
+
+    elif request.method == "POST":
         print(request.POST)
         # on recupère les données saisies dans le formulaire
         form = UserForm(request.POST)
@@ -47,3 +71,50 @@ def registerUser(request):
         form = UserForm()
     context = {'form':form}
     return render(request, "accounts/registerUser.html", context)
+
+def registerVendor(request):
+    return render(request, 'accounts/registerVendor.html')
+
+def login(request):
+    # Si le user ouvre une autre fenetre pour se logger alors qu'il est déj connecté, on le redirife vers le dashboard
+    if request.user.is_authenticated:
+        messages.warning(request, "You are already logged in !")
+        return redirect("accounts:myAccount")
+
+    # Authentification des users: on recupère l'email et le password saisis dans le formulaire de login
+    elif request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+        user = auth.authenticate(email=email, password=password)
+
+        # on teste s'il existe un usr avec ces paramètres de connexion
+        if user is not None:
+            auth.login(request, user)
+            messages.success(request, "Welcome ! Your are now logged in")
+            return redirect('accounts:myAccount')
+        else:
+            messages.error(request, "Invalid login credentials !!!")
+            return redirect('accounts:login')
+    return render(request, 'accounts/login.html')
+
+def logout(request):
+    auth.logout(request)
+    messages.info(request, "You are logged out !!!")
+    return redirect('accounts:login')
+
+@login_required(login_url='login')  # pour accéder à l'url myAccount il faudra etre connecté
+def myAccount(request):
+    user = request.user # request.user nous renvoie le user conecté
+    redirectUrl = detectUser(user)
+    return redirect(f'accounts:{redirectUrl}')
+
+@login_required(login_url='login')  # pour accéder à l'url vendorDashboard il faudra etre connecté
+@user_passes_test(check_role_vendor)
+def vendorDashboard(request):
+    return render(request, "accounts/vendorDashboard.html")
+
+@login_required(login_url='login')  # pour accéder à l'url custDashboard il faudra etre connecté
+@user_passes_test(check_role_custpmer)
+def custDashboard(request):
+    return render(request, "accounts/custDashboard.html")
+
