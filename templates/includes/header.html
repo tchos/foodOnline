@@ -73,7 +73,7 @@
                                     <a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'accounts:myAccount' %}">My account</a>
                                     <a class="cs-color cs-popup-joinus-btn login-popup text-danger" href="{% url 'accounts:logout' %}">Logout</a>
                                 {% else %}
-                                    <a class="cs-color cs-popup-joinus-btn login-popup" data-target="#sign-in" data-toggle="modal" href="{% url  'accounts:login'%}">Login</a> /
+                                    <a class="cs-color cs-popup-joinus-btn login-popup" href="{% url 'accounts:login'%}">Login</a> /
                                         <span><a href="{% url 'accounts:registerUser' %}" class="cs-color cs-popup-joinus-btn login-popup ml-0">Register</a></span><a class="get-start-btn" href="{% url 'vendor:registerVendor' %}">
                                         Register
                                         Restaurant

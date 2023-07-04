@@ -3,6 +3,7 @@ from .forms import VendorForm
 from accounts.forms import UserForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
+from accounts.utils import send_verification_email
 
 # Create your views here.
 def registerVendor(request):
@@ -41,10 +42,15 @@ def registerVendor(request):
             vendor.user_profile = user_profile
             vendor.save()
 
+            # send verification email
+            email_subject = "Please active your account"
+            email_template = "accounts/emails/account_verification_email.html "
+            send_verification_email(request, user, email_subject, email_template)
+
             # Message flash à afficher si creation ducompte avec succes. Par defaut les messages sont accessibles dans toutes les pages web
             messages.success(request,
             "Votre compte a été créé avec succès !!! S'il vous plait veuillez attendre la confirmation.")
-            return redirect('registerVendor')
+            return redirect('vendor:registerVendor')
     else:
         # Nous allons afficher les 2 formulaires dans la même page
         form = UserForm()
